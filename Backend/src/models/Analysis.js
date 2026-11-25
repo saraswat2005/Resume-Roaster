@@ -74,7 +74,7 @@ const analysisSchema = new mongoose.Schema(
     atsScore: { type: Number, required: true, min: 0, max: 100 },
     matchScore: { type: Number, default: null, min: 0, max: 100 },
     overallScore: { type: Number, required: true, min: 0, max: 100 },
-    model: { type: String, default: "gemini-3.8-flash" },
+    model: { type: String, default: "gemini-2.5-flash" },
     summary: { type: String, default: "" },
     roast: { type: String, default: "" },
     scoreBreakdown: [scoreItemSchema],

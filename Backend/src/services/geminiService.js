@@ -6,7 +6,9 @@ const ApiError = require("../utils/ApiError");
 const DEFAULT_TIMEOUT_MS = 25000;
 
 const FALLBACK_MODELS = [
-  "gemini-3.5-flash-lite",
+  "gemini-2.5-flash",
+  "gemini-2.0-flash",
+  "gemini-1.5-flash",
 ];
 
 
@@ -100,8 +102,17 @@ async function generateStructuredJson({ systemInstruction, prompt, schema, zodSc
         continue;
       }
       if (err instanceof ApiError) throw err;
-      if (status === 401 || status === 403 || msg.includes("api key")) {
-        throw new ApiError(502, "Gemini API authentication failed. Check GEMINI_API_KEY.");
+      if (status === 401 || status === 403 || msg.includes("api key") || msg.includes("leaked") || msg.includes("permission_denied")) {
+        let detail = "";
+        try {
+          const parsed = typeof err?.message === "string" ? JSON.parse(err.message) : null;
+          if (parsed?.error?.message) {
+            detail = `: ${parsed.error.message}`;
+          }
+        } catch {
+          if (err?.message) detail = `: ${err.message}`;
+        }
+        throw new ApiError(502, `Gemini API authentication failed${detail}. Check GEMINI_API_KEY in Backend/.env.`);
       }
       throw new ApiError(502, `AI service error: ${err?.message || "Unknown error"}`);
     }
